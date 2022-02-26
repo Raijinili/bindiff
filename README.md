@@ -1,15 +1,12 @@
 bindiff
 =======
 
-Compare two binary files making a basic diff.
-A message is printed that indicates if the files are identical or differs.
-It that case the offset where the files differ is provided. An option -l allow will list the differences.
+Compare 3 binary files to see if a filemod1 and filemod2 have modified bytes that overlap.
 
 Usage:
 ------
 
-    Usage: ./bindiff.py [-l] file1 file2
+    Usage: ./bindiff.py originalfile filemod1 filemod2
 
-    option -l will list all differences with offsets.
 
 
