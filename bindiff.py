@@ -4,6 +4,7 @@
 @author: Adel Daouzli
 
 Adapted for Python3 by Mario Orlandi (2021)
+Add from nixx to compare 3 files
 '''
 
 import os
@@ -27,6 +28,7 @@ class CompareFiles():
         self.offset = None
         '''offset where files start to differ'''
         self.diff_list = []
+        self.diff_list2 = {}
         '''list of diffs made of tuples: (offset, hex(byte1), hex(byte2))'''
 
         self.file1 = file1
@@ -75,6 +77,7 @@ class CompareFiles():
                         first = True
                     result = False
                     self.diff_list.append((offset, byte1, byte2))
+                    self.diff_list2[offset] = byte2;
 
                 offset += 1
                 if first == False:
@@ -112,6 +115,7 @@ def compare_files(f1, f2, ls):
     print("File 2 length: ", os.stat(f2).st_size)
     print("Num. differences: ", len(c.diff_list))
     if not result and c.message == 'content':
+        print(c.diff_list)
         print("offset differs: " + c.offset)
         if ls:
             print ("List of differences:")
@@ -120,15 +124,37 @@ def compare_files(f1, f2, ls):
                     o, e1, e2, ascii_display(e1), ascii_display(e2),
                 ))
 
+def compare_files_v2(f1, f2, f3, ls):
+    pf2size = os.stat(f2).st_size
+    pf3size = os.stat(f3).st_size
+    
+    if pf2size != pf3size :
+        return False
+    
+    a = CompareFiles(f1, f2)
+    resulta = a.compare()
+    b = CompareFiles(f1, f3)
+    resultb = b.compare()
+    
+
+    for key in a.diff_list2:        
+        if key in b.diff_list2:
+            if a.diff_list2[key] != b.diff_list2[key] :
+                if ls == True:
+                    print(key)
+                return False
+            
+    return True
+            
 
 if __name__ == '__main__':
-
-    if len(sys.argv) > 2 and len(sys.argv) < 5:
-        if len(sys.argv) > 3:
+    if len(sys.argv) > 2 and len(sys.argv) < 6:
+        if len(sys.argv) > 4:
             if sys.argv[1].strip() == '-l':
                 ls = True
                 f1 = sys.argv[2]
                 f2 = sys.argv[3]
+                f3 = sys.argv[4]
             else:
                 help_msg(os.path.basename(sys.argv[0]))
                 sys.exit()
@@ -136,11 +162,19 @@ if __name__ == '__main__':
             ls = False
             f1 = sys.argv[1]
             f2 = sys.argv[2]
+            f3 = sys.argv[3]
 
         t0 = time.time()
-        compare_files(f1, f2, ls)
+        x = compare_files_v2(f1, f2, f3, ls)
+        if x :
+            print("OK")
+        else :
+            print("NOK")
         t1 = time.time()
-        print('Elapsed time: ', time.strftime("%H:%M:%S", time.gmtime(t1 - t0)))
+        if ls :
+            print('Elapsed time: ', time.strftime("%H:%M:%S", time.gmtime(t1 - t0)))
+            
     else:
         help_msg(os.path.basename(sys.argv[0]))
+
 
